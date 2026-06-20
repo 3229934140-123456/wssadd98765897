@@ -15,9 +15,10 @@ const HomePage: React.FC = () => {
     cabinItems,
     monster,
     stats,
+    nextReward,
     completeTask,
     dismissMonster,
-    checkAndTriggerMonster
+    checkDailyReset
   } = useApp();
 
   const completedCount = useMemo(
@@ -26,7 +27,7 @@ const HomePage: React.FC = () => {
   );
 
   useDidShow(() => {
-    checkAndTriggerMonster();
+    checkDailyReset();
   });
 
   const formatWords = (words: number): string => {
@@ -47,9 +48,14 @@ const HomePage: React.FC = () => {
         <View className={styles.workTop}>
           <View>
             <Text className={styles.workTitle}>{work.title}</Text>
-            <Text className={styles.workType}>
-              {work.type === 'novel' ? '📖 轻小说' : '🎨 漫画脚本'}
-            </Text>
+            <View className={styles.workTypeRow}>
+              <Text className={styles.workType}>
+                {work.type === 'novel' ? '📖 轻小说' : '🎨 漫画脚本'}
+              </Text>
+              <Text className={styles.workTitleTag}>
+                🏆 {stats.currentTitle}
+              </Text>
+            </View>
           </View>
           <View className={styles.workTarget}>
             <Text className={styles.workTargetLabel}>当前目标</Text>
@@ -71,6 +77,25 @@ const HomePage: React.FC = () => {
           </View>
         </View>
       </View>
+
+      {nextReward && (
+        <View className={styles.streakProgress}>
+          <Text className={styles.streakIcon}>🎁</Text>
+          <View className={styles.streakInfo}>
+            <Text className={styles.streakText}>
+              再连更 <Text className={styles.streakHighlight}>{nextReward.daysRemaining}天</Text> 可解锁
+              <Text className={styles.streakHighlight}>{nextReward.name}</Text>
+              {nextReward.type === 'item' ? '✨' : '👑'}
+            </Text>
+            <View className={styles.streakBar}>
+              <View
+                className={styles.streakBarFill}
+                style={{ width: `${((stats.currentStreak) / nextReward.days) * 100}%` }}
+              />
+            </View>
+          </View>
+        </View>
+      )}
 
       <View className={styles.cabinSection}>
         <View className={styles.sectionTitle}>

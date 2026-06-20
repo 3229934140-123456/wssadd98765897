@@ -58,6 +58,63 @@
   color: $color-text-white;
 }
 
+.streakProgress {
+  margin: 0 $page-padding $spacing-md;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, #F5F0FF 0%, #EBE4FF 100%);
+  border-radius: $radius-lg;
+  border: 2rpx solid rgba($color-secondary, 0.2);
+}
+
+.streakLeft {
+  margin-bottom: $spacing-md;
+}
+
+.streakTitle {
+  display: block;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.streakText {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.streakHighlight {
+  color: $color-secondary;
+  font-weight: $font-weight-semibold;
+  margin: 0 4rpx;
+}
+
+.streakInfo {
+  width: 100%;
+}
+
+.streakNext {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.streakBar {
+  height: 16rpx;
+  background: rgba($color-secondary, 0.15);
+  border-radius: $radius-round;
+  overflow: hidden;
+}
+
+.streakBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #A394F5 0%, $color-secondary 100%);
+  border-radius: $radius-round;
+  transition: width 0.5s ease-out;
+}
+
 .sectionTitle {
   display: flex;
   align-items: center;

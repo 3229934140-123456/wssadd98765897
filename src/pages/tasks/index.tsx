@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useDidShow } from '@tarojs/taro';
 import { useApp } from '@/store/AppContext';
 import { mockMakeUpTasks } from '@/data/mockData';
 import { MakeUpTask, HistoryRecord } from '@/types';
@@ -8,7 +9,11 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 
 const TasksPage: React.FC = () => {
-  const { history, selectedMakeUpTask, selectMakeUpTask } = useApp();
+  const { history, selectedMakeUpTask, nextReward, stats, selectMakeUpTask, checkDailyReset } = useApp();
+
+  useDidShow(() => {
+    checkDailyReset();
+  });
 
   const getWeekDay = (dateStr: string): string => {
     const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -66,6 +71,30 @@ const TasksPage: React.FC = () => {
           }
         </Text>
       </View>
+
+      {nextReward && (
+        <View className={styles.streakProgress}>
+          <View className={styles.streakLeft}>
+            <Text className={styles.streakTitle}>🎁 养成进度</Text>
+            <Text className={styles.streakText}>
+              当前称号：<Text className={styles.streakHighlight}>🏆 {stats.currentTitle}</Text>
+            </Text>
+          </View>
+          <View className={styles.streakInfo}>
+            <Text className={styles.streakNext}>
+              再连更 <Text className={styles.streakHighlight}>{nextReward.daysRemaining}天</Text> 解锁
+              <Text className={styles.streakHighlight}>{nextReward.name}</Text>
+              {nextReward.type === 'item' ? '✨' : '👑'}
+            </Text>
+            <View className={styles.streakBar}>
+              <View
+                className={styles.streakBarFill}
+                style={{ width: `${((stats.currentStreak) / nextReward.days) * 100}%` }}
+              />
+            </View>
+          </View>
+        </View>
+      )}
 
       <View className={styles.sectionTitle}>
         <Text className={styles.sectionIcon}>🎯</Text>

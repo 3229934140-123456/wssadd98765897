@@ -1,4 +1,4 @@
-import { Work, DailyTask, CabinItem, MakeUpTask, MonsterState, StatsData, HistoryRecord, WorkTarget } from '@/types';
+import { Work, DailyTask, CabinItem, MakeUpTask, MonsterState, StatsData, HistoryRecord, WorkTarget, StreakReward } from '@/types';
 
 // 可选目标列表
 export const targetOptions: WorkTarget[] = [
@@ -17,6 +17,54 @@ export const targetOptions: WorkTarget[] = [
     label: '月末冲榜',
     description: '冲刺月票榜/收藏榜，月末全力爆发'
   }
+];
+
+// 连更奖励配置
+export const streakRewards: StreakReward[] = [
+  {
+    days: 3,
+    type: 'item',
+    id: 'plant',
+    name: '小盆栽',
+    description: '连续更新3天，获得元气小盆栽'
+  },
+  {
+    days: 7,
+    type: 'item',
+    id: 'star',
+    name: '许愿星',
+    description: '连续更新7天，闪亮许愿星登场'
+  },
+  {
+    days: 14,
+    type: 'item',
+    id: 'cat',
+    name: '猫咪',
+    description: '连续更新14天，小屋迎来猫咪伙伴'
+  },
+  {
+    days: 21,
+    type: 'title',
+    id: 'beginner',
+    name: '初心作者',
+    description: '坚持21天，养成创作好习惯'
+  },
+  {
+    days: 30,
+    type: 'title',
+    id: 'stable',
+    name: '稳定更新者',
+    description: '满月成就，稳定更新的实力派'
+  }
+];
+
+// 称号列表（按获得顺序）
+export const titleList: { id: string; name: string; days: number }[] = [
+  { id: 'newbie', name: '新手作者', days: 0 },
+  { id: 'beginner', name: '初心作者', days: 21 },
+  { id: 'stable', name: '稳定更新者', days: 30 },
+  { id: 'veteran', name: '码字老兵', days: 60 },
+  { id: 'master', name: '大神级作者', days: 100 }
 ];
 
 // 当前作品
@@ -65,10 +113,10 @@ export const mockCabinItems: CabinItem[] = [
   { id: 'coffeeCup', name: '咖啡杯', icon: '☕', unlocked: false, position: { x: 35, y: 60 } },
   { id: 'magicBook', name: '魔法书', icon: '📖', unlocked: false, position: { x: 55, y: 45 } },
   { id: 'candle', name: '小蜡烛', icon: '🕯️', unlocked: true, position: { x: 75, y: 50 } },
-  { id: 'plant', name: '小盆栽', icon: '🪴', unlocked: false, position: { x: 25, y: 30 } },
-  { id: 'cat', name: '猫咪', icon: '🐱', unlocked: false, position: { x: 65, y: 70 } },
+  { id: 'plant', name: '小盆栽', icon: '🪴', unlocked: false, position: { x: 25, y: 30 }, isStreakReward: true, streakDaysRequired: 3 },
+  { id: 'cat', name: '猫咪', icon: '🐱', unlocked: false, position: { x: 65, y: 70 }, isStreakReward: true, streakDaysRequired: 14 },
   { id: 'lamp', name: '台灯', icon: '💡', unlocked: true, position: { x: 85, y: 35 } },
-  { id: 'star', name: '许愿星', icon: '⭐', unlocked: false, position: { x: 45, y: 20 } }
+  { id: 'star', name: '许愿星', icon: '⭐', unlocked: false, position: { x: 45, y: 20 }, isStreakReward: true, streakDaysRequired: 7 }
 ];
 
 // 补更任务卡
@@ -102,7 +150,7 @@ export const mockMonster: MonsterState = {
   level: 1,
   message: '',
   position: 0,
-  dismissed: false
+  dismissedForDate: null
 };
 
 // 统计数据
@@ -111,7 +159,8 @@ export const mockStats: StatsData = {
   completedTasks: 58,
   currentStreak: 7,
   longestStreak: 14,
-  unlockedItems: 2
+  unlockedItems: 2,
+  currentTitle: '初心作者'
 };
 
 // 历史记录
@@ -133,3 +182,8 @@ export const monsterMessages = [
   '咕噜咕噜～你的小读者正在刷新页面哦',
   '只差一步就断更啦，快动起来吧！'
 ];
+
+// 获取今日日期字符串
+export const getTodayStr = (): string => {
+  return new Date().toISOString().split('T')[0];
+};

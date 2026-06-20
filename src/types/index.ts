@@ -37,6 +37,8 @@ export interface CabinItem {
   icon: string;
   unlocked: boolean;
   position: { x: number; y: number };
+  isStreakReward?: boolean;
+  streakDaysRequired?: number;
 }
 
 // 补更任务卡
@@ -54,7 +56,16 @@ export interface MonsterState {
   level: number;
   message: string;
   position: number;
-  dismissed: boolean;
+  dismissedForDate: string | null;
+}
+
+// 连更奖励
+export interface StreakReward {
+  days: number;
+  type: 'item' | 'title';
+  id: string;
+  name: string;
+  description: string;
 }
 
 // 统计数据
@@ -64,6 +75,7 @@ export interface StatsData {
   currentStreak: number;
   longestStreak: number;
   unlockedItems: number;
+  currentTitle: string;
 }
 
 // 历史记录
@@ -74,4 +86,17 @@ export interface HistoryRecord {
   hadMakeUp: boolean;
   makeUpType?: string;
   makeUpLabel?: string;
+}
+
+// 持久化存档
+export interface GameSave {
+  version: number;
+  lastActiveDate: string;
+  work: Work;
+  dailyTasks: DailyTask[];
+  cabinItems: CabinItem[];
+  monster: MonsterState;
+  stats: StatsData;
+  history: HistoryRecord[];
+  selectedMakeUpTask: string | null;
 }
