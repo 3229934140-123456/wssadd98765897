@@ -1,0 +1,111 @@
+@use '@/styles/variables.scss' as *;
+
+.taskCard {
+  position: relative;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 4rpx 16rpx rgba(255, 140, 105, 0.1);
+  transition: all $transition-base;
+  overflow: hidden;
+
+  &.completed {
+    background: linear-gradient(135deg, #F0FFF0 0%, #E8FFE8 100%);
+  }
+}
+
+.cardInner {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.iconWrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-md;
+  background: linear-gradient(135deg, $color-primary-light 0%, $color-primary 100%);
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.icon {
+  font-size: 48rpx;
+}
+
+.completed .iconWrap {
+  background: linear-gradient(135deg, #95DE64 0%, $color-success 100%);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.desc {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.4;
+}
+
+.completed .title,
+.completed .desc {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.action {
+  flex-shrink: 0;
+}
+
+.btn {
+  @include button-reset;
+  height: $button-height-sm;
+  min-width: 140rpx;
+  padding: 0 $spacing-lg;
+  background: linear-gradient(135deg, $color-primary-light 0%, $color-primary 100%);
+  border-radius: $radius-button;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+}
+
+.btnText {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.doneBadge {
+  padding: 12rpx $spacing-md;
+  background: rgba($color-success, 0.15);
+  border-radius: $radius-button;
+}
+
+.doneText {
+  font-size: $font-size-sm;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+}
+
+.glow {
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200rpx;
+  height: 200rpx;
+  background: radial-gradient(circle, rgba($color-success, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+}

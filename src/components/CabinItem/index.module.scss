@@ -1,0 +1,71 @@
+@use '@/styles/variables.scss' as *;
+
+.cabinItem {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.4;
+  transition: all $transition-base;
+  filter: grayscale(0.8);
+
+  &.unlocked {
+    opacity: 1;
+    filter: grayscale(0);
+    animation: popIn 0.5s ease-out;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.itemInner {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-md;
+  background: rgba(255, 255, 255, 0.85);
+  @include flex-center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.unlocked .itemInner {
+  background: linear-gradient(135deg, #FFF5EB 0%, #FFE8D6 100%);
+  box-shadow: 0 4rpx 16rpx rgba(255, 140, 105, 0.25);
+}
+
+.icon {
+  font-size: 44rpx;
+}
+
+.name {
+  margin-top: $spacing-xs;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+}
+
+.lockOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  @include flex-center;
+}
+
+.lockIcon {
+  font-size: 28rpx;
+  opacity: 0.8;
+}

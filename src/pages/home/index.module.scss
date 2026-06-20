@@ -1,0 +1,283 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+}
+
+.workCard {
+  margin: $spacing-lg $page-padding $spacing-md;
+  padding: $spacing-xl;
+  border-radius: $radius-xl;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  color: $color-text-white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 105, 0.3);
+}
+
+.workCard::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  right: -20%;
+  width: 300rpx;
+  height: 300rpx;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.workTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-lg;
+}
+
+.workTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.workType {
+  display: inline-block;
+  padding: 6rpx 20rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  color: $color-text-white;
+}
+
+.workTarget {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: right;
+}
+
+.workTargetLabel {
+  display: block;
+  font-size: 22rpx;
+  opacity: 0.8;
+  margin-bottom: 4rpx;
+}
+
+.workStats {
+  display: flex;
+  gap: $spacing-lg;
+}
+
+.statItem {
+  flex: 1;
+}
+
+.statValue {
+  display: block;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.statLabel {
+  display: block;
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 4rpx;
+}
+
+.cabinSection {
+  margin: 0 $page-padding $spacing-md;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitleText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionSub {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.cabinScene {
+  position: relative;
+  height: 480rpx;
+  border-radius: $radius-xl;
+  background: linear-gradient(180deg, #FFE8D6 0%, #FFD6B8 50%, #FFCCAA 100%);
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(255, 140, 105, 0.15);
+}
+
+.cabinBg {
+  position: absolute;
+  inset: 0;
+}
+
+.wall {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(180deg, #FFF0E0 0%, #FFE5CC 100%);
+}
+
+.floor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, #E8C9A0 0%, #D4A574 100%);
+}
+
+.window {
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  width: 100rpx;
+  height: 120rpx;
+  background: linear-gradient(180deg, #B8E0FF 0%, #A0D0FF 100%);
+  border-radius: 8rpx 8rpx 0 0;
+  border: 6rpx solid #8B6F47;
+  box-sizing: border-box;
+}
+
+.windowCross1 {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: #8B6F47;
+  transform: translateY(-50%);
+}
+
+.windowCross2 {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4rpx;
+  background: #8B6F47;
+  transform: translateX(-50%);
+}
+
+.bookshelf {
+  position: absolute;
+  bottom: 35%;
+  right: 8%;
+  width: 140rpx;
+  height: 180rpx;
+  background: linear-gradient(180deg, #A0826D 0%, #8B6F47 100%);
+  border-radius: $radius-xs;
+  padding: 12rpx 8rpx;
+  box-sizing: border-box;
+}
+
+.shelf {
+  height: 33%;
+  border-bottom: 3rpx solid #6B5339;
+  display: flex;
+  align-items: flex-end;
+  padding: 4rpx;
+  gap: 4rpx;
+}
+
+.book {
+  flex: 1;
+  height: 70%;
+  border-radius: 2rpx;
+}
+
+.book1 { background: linear-gradient(180deg, #FF8C69 0%, #E67355 100%); }
+.book2 { background: linear-gradient(180deg, #7B68EE 0%, #6554D4 100%); }
+.book3 { background: linear-gradient(180deg, #52C41A 0%, #3F9C13 100%); }
+.book4 { background: linear-gradient(180deg, #FAAD14 0%, #D48E0A 100%); }
+.book5 { background: linear-gradient(180deg, #FF6B6B 0%, #E55050 100%); }
+.book6 { background: linear-gradient(180deg, #13C2C2 0%, #0FA3A3 100%); }
+
+.desk {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260rpx;
+  height: 24rpx;
+  background: linear-gradient(180deg, #C49A6C 0%, #A08050 100%);
+  border-radius: 4rpx;
+}
+
+.deskLeg1, .deskLeg2 {
+  position: absolute;
+  bottom: -60rpx;
+  width: 12rpx;
+  height: 60rpx;
+  background: #8B6F47;
+}
+
+.deskLeg1 { left: 16rpx; }
+.deskLeg2 { right: 16rpx; }
+
+.carpet {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300rpx;
+  height: 60rpx;
+  background: linear-gradient(90deg, #FF8C69 0%, #FFB199 50%, #FF8C69 100%);
+  border-radius: $radius-round;
+  opacity: 0.5;
+}
+
+.tasksSection {
+  margin: 0 $page-padding;
+}
+
+.tasksHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.tasksTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.tasksTitleText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.tasksTitleIcon {
+  font-size: 36rpx;
+}
+
+.tasksProgress {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.statsSection {
+  margin: $spacing-xl $page-padding 0;
+  padding: $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  display: flex;
+}

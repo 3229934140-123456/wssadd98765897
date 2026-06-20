@@ -1,0 +1,98 @@
+@use '@/styles/variables.scss' as *;
+
+.monsterWrap {
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFF0D6 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  border: 2rpx solid rgba($color-warning, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.monsterBox {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.monsterAvatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD666 0%, $color-warning 100%);
+  @include flex-center;
+  animation: bounce 1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8rpx);
+  }
+}
+
+.monsterFace {
+  font-size: 48rpx;
+}
+
+.monsterContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.monsterTitle {
+  display: block;
+  font-size: 28rpx;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 8rpx;
+}
+
+.monsterMsg {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+}
+
+.closeBtn {
+  @include button-reset;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba($color-text-tertiary, 0.1);
+  flex-shrink: 0;
+
+  &:active {
+    background: rgba($color-text-tertiary, 0.2);
+  }
+}
+
+.closeText {
+  font-size: 36rpx;
+  color: $color-text-tertiary;
+  line-height: 1;
+}
+
+.monsterFootprint {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx dashed rgba($color-warning, 0.3);
+}
+
+.footprint {
+  font-size: 28rpx;
+  opacity: 0.6;
+}
+
+.footprintTip {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
