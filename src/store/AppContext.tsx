@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
 import {
   Work,
   DailyTask,
@@ -16,7 +16,8 @@ import {
   mockStats,
   mockHistory,
   monsterMessages,
-  targetOptions
+  targetOptions,
+  mockMakeUpTasks
 } from '@/data/mockData';
 
 interface AppContextType {
@@ -27,11 +28,13 @@ interface AppContextType {
   stats: StatsData;
   history: HistoryRecord[];
   targetOptions: WorkTarget[];
+  selectedMakeUpTask: string | null;
   completeTask: (taskId: string) => void;
   updateWork: (updates: Partial<Work>) => void;
   updateWorkTarget: (target: WorkTarget) => void;
   selectMakeUpTask: (type: string) => void;
-  triggerMonster: () => void;
+  dismissMonster: () => void;
+  checkAndTriggerMonster: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -42,23 +45,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [cabinItems, setCabinItems] = useState<CabinItem[]>(mockCabinItems);
   const [monster, setMonster] = useState<MonsterState>(mockMonster);
   const [stats, setStats] = useState<StatsData>(mockStats);
-  const [history] = useState<HistoryRecord[]>(mockHistory);
+  const [history, setHistory] = useState<HistoryRecord[]>(mockHistory);
+  const [selectedMakeUpTask, setSelectedMakeUpTask] = useState<string | null>(null);
+  const cabinItemsRef = useRef(cabinItems);
+  cabinItemsRef.current = cabinItems;
 
   const completeTask = useCallback((taskId: string) => {
-    setDailyTasks(prev => prev.map(task => {
-      if (task.id === taskId && !task.completed) {
-        setCabinItems(items => items.map(item =>
-          item.id === task.rewardItem ? { ...item, unlocked: true } : item
-        ));
-        setStats(s => ({
-          ...s,
-          completedTasks: s.completedTasks + 1,
-          unlockedItems: s.unlockedItems + 1
-        }));
-        return { ...task, completed: true };
-      }
-      return task;
-    }));
+    setDailyTasks(prev => {
+      const targetTask = prev.find(t => t.id === taskId);
+      if (!targetTask || targetTask.completed) return prev;
+
+      const wasItemLocked = !cabinItemsRef.current.find(i => i.id === targetTask.rewardItem)?.unlocked;
+
+      setCabinItems(items => items.map(item =>
+        item.id === targetTask.rewardItem ? { ...item, unlocked: true } : item
+      ));
+
+      setStats(s => ({
+        ...s,
+        completedTasks: s.completedTasks + 1,
+        unlockedItems: wasItemLocked ? s.unlockedItems + 1 : s.unlockedItems
+      }));
+
+      setMonster(m => ({ ...m, active: false, dismissed: false }));
+
+      return prev.map(task =>
+        task.id === taskId ? { ...task, completed: true } : task
+      );
+    });
     console.log('[AppContext] Task completed:', taskId);
   }, []);
 
@@ -73,25 +87,68 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const selectMakeUpTask = useCallback((type: string) => {
-    const newRecord: HistoryRecord = {
-      date: new Date().toISOString().split('T')[0],
-      tasksCompleted: 1,
-      wordsWritten: type === 'extra1000' ? 1000 : 0,
-      hadMakeUp: true
-    };
-    console.log('[AppContext] Make-up task selected:', type, newRecord);
-    setMonster({ active: false, level: 1, message: '', position: 0 });
+    const makeUpTask = mockMakeUpTasks.find(t => t.type === type);
+    const label = makeUpTask?.title || type;
+    const today = new Date().toISOString().split('T')[0];
+
+    setSelectedMakeUpTask(type);
+
+    setHistory(prev => {
+      const todayRecord = prev.find(r => r.date === today);
+      if (todayRecord) {
+        return prev.map(r =>
+          r.date === today
+            ? { ...r, hadMakeUp: true, makeUpType: type, makeUpLabel: label }
+            : r
+        );
+      }
+      return [
+        {
+          date: today,
+          tasksCompleted: 0,
+          wordsWritten: type === 'extra1000' ? 1000 : 0,
+          hadMakeUp: true,
+          makeUpType: type,
+          makeUpLabel: label
+        },
+        ...prev
+      ];
+    });
+
+    setMonster({ active: false, level: 1, message: '', position: 0, dismissed: false });
+    console.log('[AppContext] Make-up task selected:', type);
   }, []);
 
-  const triggerMonster = useCallback(() => {
-    const randomMsg = monsterMessages[Math.floor(Math.random() * monsterMessages.length)];
-    setMonster({
-      active: true,
-      level: 2,
-      message: randomMsg,
-      position: 60
+  const dismissMonster = useCallback(() => {
+    setMonster(prev => ({ ...prev, active: false, dismissed: true }));
+    console.log('[AppContext] Monster dismissed');
+  }, []);
+
+  const checkAndTriggerMonster = useCallback(() => {
+    setDailyTasks(currentTasks => {
+      const anyCompleted = currentTasks.some(t => t.completed);
+      if (anyCompleted) return currentTasks;
+
+      const hour = new Date().getHours();
+      if (hour < 20) return currentTasks;
+
+      setMonster(currentMonster => {
+        if (currentMonster.dismissed) return currentMonster;
+        if (currentMonster.active) return currentMonster;
+
+        const randomMsg = monsterMessages[Math.floor(Math.random() * monsterMessages.length)];
+        console.log('[AppContext] Monster auto-triggered');
+        return {
+          active: true,
+          level: 2,
+          message: randomMsg,
+          position: 60,
+          dismissed: false
+        };
+      });
+
+      return currentTasks;
     });
-    console.log('[AppContext] Monster triggered');
   }, []);
 
   return (
@@ -103,11 +160,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       stats,
       history,
       targetOptions,
+      selectedMakeUpTask,
       completeTask,
       updateWork,
       updateWorkTarget,
       selectMakeUpTask,
-      triggerMonster
+      dismissMonster,
+      checkAndTriggerMonster
     }}>
       {children}
     </AppContext.Provider>

@@ -99,9 +99,14 @@
 
   &:active {
     transform: scale(0.98);
-    border-color: $color-primary-light;
     background: $color-bg-hover;
   }
+}
+
+.makeUpCardSelected {
+  border-color: $color-primary;
+  background: linear-gradient(135deg, #FFF8F5 0%, #FFEFE8 100%);
+  box-shadow: 0 4rpx 16rpx rgba(255, 140, 105, 0.15);
 }
 
 .makeUpIconWrap {
@@ -151,6 +156,18 @@
 .makeUpArrow {
   font-size: 36rpx;
   color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.makeUpCheck {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-primary-light 0%, $color-primary 100%);
+  color: $color-text-white;
+  font-size: 28rpx;
+  font-weight: $font-weight-bold;
+  @include flex-center;
   flex-shrink: 0;
 }
 

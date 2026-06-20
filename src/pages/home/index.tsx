@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
+import { useDidShow } from '@tarojs/taro';
 import { useApp } from '@/store/AppContext';
 import TaskCard from '@/components/TaskCard';
 import CabinItemComponent from '@/components/CabinItem';
@@ -15,13 +16,18 @@ const HomePage: React.FC = () => {
     monster,
     stats,
     completeTask,
-    triggerMonster
+    dismissMonster,
+    checkAndTriggerMonster
   } = useApp();
 
   const completedCount = useMemo(
     () => dailyTasks.filter(t => t.completed).length,
     [dailyTasks]
   );
+
+  useDidShow(() => {
+    checkAndTriggerMonster();
+  });
 
   const formatWords = (words: number): string => {
     if (words >= 10000) {
@@ -31,7 +37,8 @@ const HomePage: React.FC = () => {
   };
 
   const handleDismissMonster = () => {
-    console.log('[HomePage] Monster dismissed');
+    dismissMonster();
+    console.log('[HomePage] Monster dismissed by user');
   };
 
   return (

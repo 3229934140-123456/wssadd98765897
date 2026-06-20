@@ -54,6 +54,7 @@ export interface MonsterState {
   level: number;
   message: string;
   position: number;
+  dismissed: boolean;
 }
 
 // 统计数据
@@ -71,4 +72,6 @@ export interface HistoryRecord {
   tasksCompleted: number;
   wordsWritten: number;
   hadMakeUp: boolean;
+  makeUpType?: string;
+  makeUpLabel?: string;
 }

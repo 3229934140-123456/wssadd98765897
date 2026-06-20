@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 
 const SettingsPage: React.FC = () => {
-  const { work, stats, targetOptions, updateWork, updateWorkTarget, triggerMonster } = useApp();
+  const { work, stats, targetOptions, updateWork, updateWorkTarget } = useApp();
 
   const handleTypeChange = (type: 'novel' | 'script') => {
     updateWork({ type });
@@ -25,15 +25,6 @@ const SettingsPage: React.FC = () => {
       icon: 'success'
     });
     console.log('[SettingsPage] Target selected:', target.type);
-  };
-
-  const handleTriggerMonster = () => {
-    triggerMonster();
-    Taro.showToast({
-      title: '断更小怪出现啦！',
-      icon: 'none'
-    });
-    Taro.switchTab({ url: '/pages/home/index' });
   };
 
   const formatWords = (words: number): string => {
@@ -155,17 +146,6 @@ const SettingsPage: React.FC = () => {
         </View>
       </View>
 
-      <View className={styles.section}>
-        <View className={styles.sectionTitle}>
-          <Text className={styles.sectionIcon}>🔧</Text>
-          <Text className={styles.sectionTitleText}>更多操作</Text>
-        </View>
-        <View className={styles.actionSection}>
-          <Button className={styles.actionBtn} onClick={handleTriggerMonster}>
-            <Text className={styles.actionBtnText}>👾 测试召唤断更小怪</Text>
-          </Button>
-        </View>
-      </View>
     </ScrollView>
   );
 };

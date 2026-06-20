@@ -61,8 +61,8 @@ export const mockDailyTasks: DailyTask[] = [
 
 // 小屋道具
 export const mockCabinItems: CabinItem[] = [
-  { id: 'inkBottle', name: '墨水瓶', icon: '🖋️', unlocked: true, position: { x: 15, y: 55 } },
-  { id: 'coffeeCup', name: '咖啡杯', icon: '☕', unlocked: true, position: { x: 35, y: 60 } },
+  { id: 'inkBottle', name: '墨水瓶', icon: '🖋️', unlocked: false, position: { x: 15, y: 55 } },
+  { id: 'coffeeCup', name: '咖啡杯', icon: '☕', unlocked: false, position: { x: 35, y: 60 } },
   { id: 'magicBook', name: '魔法书', icon: '📖', unlocked: false, position: { x: 55, y: 45 } },
   { id: 'candle', name: '小蜡烛', icon: '🕯️', unlocked: true, position: { x: 75, y: 50 } },
   { id: 'plant', name: '小盆栽', icon: '🪴', unlocked: false, position: { x: 25, y: 30 } },
@@ -101,7 +101,8 @@ export const mockMonster: MonsterState = {
   active: false,
   level: 1,
   message: '',
-  position: 0
+  position: 0,
+  dismissed: false
 };
 
 // 统计数据
@@ -110,7 +111,7 @@ export const mockStats: StatsData = {
   completedTasks: 58,
   currentStreak: 7,
   longestStreak: 14,
-  unlockedItems: 4
+  unlockedItems: 2
 };
 
 // 历史记录
@@ -118,7 +119,7 @@ export const mockHistory: HistoryRecord[] = [
   { date: '2026-06-20', tasksCompleted: 3, wordsWritten: 3200, hadMakeUp: false },
   { date: '2026-06-19', tasksCompleted: 2, wordsWritten: 2100, hadMakeUp: false },
   { date: '2026-06-18', tasksCompleted: 3, wordsWritten: 3500, hadMakeUp: false },
-  { date: '2026-06-17', tasksCompleted: 1, wordsWritten: 800, hadMakeUp: true },
+  { date: '2026-06-17', tasksCompleted: 1, wordsWritten: 800, hadMakeUp: true, makeUpType: 'extra1000', makeUpLabel: '明天多写 1000 字' },
   { date: '2026-06-16', tasksCompleted: 3, wordsWritten: 3000, hadMakeUp: false },
   { date: '2026-06-15', tasksCompleted: 3, wordsWritten: 3100, hadMakeUp: false },
   { date: '2026-06-14', tasksCompleted: 2, wordsWritten: 2500, hadMakeUp: false }

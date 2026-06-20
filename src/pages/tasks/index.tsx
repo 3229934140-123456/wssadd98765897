@@ -4,10 +4,11 @@ import Taro from '@tarojs/taro';
 import { useApp } from '@/store/AppContext';
 import { mockMakeUpTasks } from '@/data/mockData';
 import { MakeUpTask, HistoryRecord } from '@/types';
+import classnames from 'classnames';
 import styles from './index.module.scss';
 
 const TasksPage: React.FC = () => {
-  const { history, selectMakeUpTask } = useApp();
+  const { history, selectedMakeUpTask, selectMakeUpTask } = useApp();
 
   const getWeekDay = (dateStr: string): string => {
     const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -59,7 +60,10 @@ const TasksPage: React.FC = () => {
           偶尔的断更不是失败，休息一下也没关系～
         </Text>
         <Text className={styles.headerHighlight}>
-          选择一个补更方式，让故事继续下去吧！
+          {selectedMakeUpTask
+            ? `今日已安排: ${mockMakeUpTasks.find(t => t.type === selectedMakeUpTask)?.title || selectedMakeUpTask}`
+            : '选择一个补更方式，让故事继续下去吧！'
+          }
         </Text>
       </View>
 
@@ -69,22 +73,29 @@ const TasksPage: React.FC = () => {
       </View>
 
       <View className={styles.makeUpSection}>
-        {mockMakeUpTasks.map((task, index) => (
-          <Button
-            key={task.id}
-            className={styles.makeUpCard}
-            onClick={() => handleSelectMakeUp(task)}
-          >
-            <View className={`${styles.makeUpIconWrap} ${iconWrapClass(index)}`}>
-              <Text className={styles.makeUpIcon}>{task.icon}</Text>
-            </View>
-            <View className={styles.makeUpContent}>
-              <Text className={styles.makeUpTitle}>{task.title}</Text>
-              <Text className={styles.makeUpDesc}>{task.description}</Text>
-            </View>
-            <Text className={styles.makeUpArrow}>›</Text>
-          </Button>
-        ))}
+        {mockMakeUpTasks.map((task, index) => {
+          const isSelected = selectedMakeUpTask === task.type;
+          return (
+            <Button
+              key={task.id}
+              className={classnames(styles.makeUpCard, isSelected && styles.makeUpCardSelected)}
+              onClick={() => handleSelectMakeUp(task)}
+            >
+              <View className={`${styles.makeUpIconWrap} ${iconWrapClass(index)}`}>
+                <Text className={styles.makeUpIcon}>{task.icon}</Text>
+              </View>
+              <View className={styles.makeUpContent}>
+                <Text className={styles.makeUpTitle}>{task.title}</Text>
+                <Text className={styles.makeUpDesc}>{task.description}</Text>
+              </View>
+              {isSelected ? (
+                <Text className={styles.makeUpCheck}>✓</Text>
+              ) : (
+                <Text className={styles.makeUpArrow}>›</Text>
+              )}
+            </Button>
+          );
+        })}
       </View>
 
       <View className={styles.sectionTitle}>
@@ -116,7 +127,7 @@ const TasksPage: React.FC = () => {
                   </View>
                   <Text className={styles.historyWords}>
                     完成 {record.tasksCompleted}/3 任务 · {record.wordsWritten} 字
-                    {record.hadMakeUp && ' · 含补更'}
+                    {record.makeUpLabel && ` · ${record.makeUpLabel}`}
                   </Text>
                 </View>
                 <View className={styles.historyStatus}>
