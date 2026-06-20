@@ -16,10 +16,51 @@ const TasksPage: React.FC = () => {
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
+  const [historyMode, setHistoryMode] = useState<'week' | 'month'>('week');
 
   useDidShow(() => {
     checkDailyReset();
   });
+
+  const getWeekRange = (): { start: Date; end: Date } => {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diff);
+    monday.setHours(0, 0, 0, 0);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return { start: monday, end: sunday };
+  };
+
+  const getMonthRange = (): { start: Date; end: Date } => {
+    const now = new Date();
+    const first = new Date(now.getFullYear(), now.getMonth(), 1);
+    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    last.setHours(23, 59, 59, 999);
+    return { start: first, end: last };
+  };
+
+  const isDateInRange = (dateStr: string, start: Date, end: Date): boolean => {
+    const d = new Date(dateStr);
+    return d >= start && d <= end;
+  };
+
+  const filteredHistory = useMemo(() => {
+    const { start, end } = historyMode === 'week' ? getWeekRange() : getMonthRange();
+    return history.filter(r => isDateInRange(r.date, start, end));
+  }, [history, historyMode]);
+
+  const periodStats = useMemo(() => {
+    const records = filteredHistory;
+    const completedDays = records.filter(r => r.tasksCompleted === 3).length;
+    const makeUpCount = records.filter(r => r.hadMakeUp).length;
+    const totalWords = records.reduce((sum, r) => sum + r.wordsWritten, 0);
+    const rewardCount = records.reduce((sum, r) => sum + (r.rewards?.length ?? 0), 0);
+    return { completedDays, makeUpCount, totalWords, rewardCount };
+  }, [filteredHistory]);
 
   const calendarDays = useMemo((): CalendarDay[] => {
     const firstDay = new Date(calendarYear, calendarMonth, 1);
@@ -261,6 +302,18 @@ const TasksPage: React.FC = () => {
                         📋 {expandedRecord.makeUpLabel}
                       </Text>
                     )}
+                    {expandedRecord.rewards && expandedRecord.rewards.length > 0 && (
+                      <View className={styles.expandedRewards}>
+                        <Text className={styles.expandedRewardsLabel}>🎁 解锁奖励：</Text>
+                        <View className={styles.expandedRewardsList}>
+                          {expandedRecord.rewards.map((reward, idx) => (
+                            <Text key={idx} className={styles.expandedRewardTag}>
+                              {reward}
+                            </Text>
+                          ))}
+                        </View>
+                      </View>
+                    )}
                   </View>
                 )}
               </View>
@@ -303,14 +356,52 @@ const TasksPage: React.FC = () => {
       <View className={styles.sectionTitle}>
         <Text className={styles.sectionIcon}>📜</Text>
         <Text className={styles.sectionTitleText}>最近记录</Text>
-        <Text className={styles.sectionSub}>近7天</Text>
+        <View className={styles.modeToggle}>
+          <Button
+            className={classnames(styles.modeBtn, historyMode === 'week' && styles.modeBtnActive)}
+            onClick={() => setHistoryMode('week')}
+          >
+            <Text className={styles.modeBtnText}>本周</Text>
+          </Button>
+          <Button
+            className={classnames(styles.modeBtn, historyMode === 'month' && styles.modeBtnActive)}
+            onClick={() => setHistoryMode('month')}
+          >
+            <Text className={styles.modeBtnText}>本月</Text>
+          </Button>
+        </View>
+      </View>
+
+      <View className={styles.statsRow}>
+        <View className={styles.statsMiniCard}>
+          <Text className={styles.statsMiniValue}>{periodStats.completedDays}</Text>
+          <Text className={styles.statsMiniLabel}>完成天数</Text>
+        </View>
+        <View className={styles.statsMiniCard}>
+          <Text className={styles.statsMiniValue}>{periodStats.makeUpCount}</Text>
+          <Text className={styles.statsMiniLabel}>补更次数</Text>
+        </View>
+        <View className={styles.statsMiniCard}>
+          <Text className={styles.statsMiniValue}>
+            {periodStats.totalWords >= 10000
+              ? `${(periodStats.totalWords / 10000).toFixed(1)}万`
+              : periodStats.totalWords}
+          </Text>
+          <Text className={styles.statsMiniLabel}>总字数</Text>
+        </View>
+        <View className={styles.statsMiniCard}>
+          <Text className={styles.statsMiniValue}>{periodStats.rewardCount}</Text>
+          <Text className={styles.statsMiniLabel}>获得奖励</Text>
+        </View>
       </View>
 
       <View className={styles.historySection}>
-        {history.length === 0 ? (
-          <Text className={styles.emptyTip}>还没有记录，开始今天的创作吧！</Text>
+        {filteredHistory.length === 0 ? (
+          <Text className={styles.emptyTip}>
+            {historyMode === 'week' ? '本周还没有记录哦～' : '本月还没有记录哦～'}
+          </Text>
         ) : (
-          history.slice(0, 7).map((record, idx) => {
+          filteredHistory.map((record, idx) => {
             const status = getStatusBadge(record);
             return (
               <View key={idx} className={styles.historyItem}>

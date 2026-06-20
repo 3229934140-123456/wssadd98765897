@@ -74,11 +74,26 @@
   border-radius: $radius-lg;
   background: $color-bg-card;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  @include button-reset;
+}
+
+.gridItemClickable {
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.96);
+  }
 }
 
 .gridItemUnlocked {
   background: linear-gradient(180deg, #FFF8F5 0%, #FFEFE8 100%);
   border: 2rpx solid rgba($color-primary, 0.2);
+}
+
+.gridItemPlaced {
+  border-color: $color-primary;
+  box-shadow: 0 4rpx 12rpx rgba($color-primary, 0.2);
 }
 
 .gridItemLocked {
@@ -93,6 +108,26 @@
   background: rgba($color-primary, 0.1);
   @include flex-center;
   margin-bottom: $spacing-xs;
+  position: relative;
+}
+
+.placedBadge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: $color-success;
+  @include flex-center;
+  border: 2rpx solid $color-bg-card;
+}
+
+.placedBadgeText {
+  font-size: 18rpx;
+  color: $color-text-white;
+  line-height: 1;
+  font-weight: $font-weight-bold;
 }
 
 .gridItemUnlocked .gridItemIcon {

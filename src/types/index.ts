@@ -36,6 +36,7 @@ export interface CabinItem {
   name: string;
   icon: string;
   unlocked: boolean;
+  placed: boolean;
   position: { x: number; y: number };
   isStreakReward?: boolean;
   streakDaysRequired?: number;
@@ -57,6 +58,7 @@ export interface MonsterState {
   message: string;
   position: number;
   dismissedForDate: string | null;
+  dismissedLevel: number;
 }
 
 // 连更奖励

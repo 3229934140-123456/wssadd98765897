@@ -54,6 +54,7 @@ interface AppContextType {
   checkAndTriggerMonster: () => void;
   checkDailyReset: () => void;
   forceTriggerMonster: () => void;
+  toggleItemPlaced: (itemId: string) => void;
   clearSave: () => void;
 }
 
@@ -114,10 +115,26 @@ const getCurrentTitle = (streakDays: number): string => {
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const saved = loadSave();
 
+  const initCabinItems = (): CabinItem[] => {
+    if (!saved?.cabinItems) return mockCabinItems;
+    return saved.cabinItems.map(item => ({
+      ...item,
+      placed: item.placed !== undefined ? item.placed : true
+    }));
+  };
+
+  const initMonster = (): MonsterState => {
+    if (!saved?.monster) return mockMonster;
+    return {
+      ...saved.monster,
+      dismissedLevel: saved.monster.dismissedLevel ?? 0
+    };
+  };
+
   const [work, setWork] = useState<Work>(saved?.work ?? mockWork);
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>(saved?.dailyTasks ?? mockDailyTasks);
-  const [cabinItems, setCabinItems] = useState<CabinItem[]>(saved?.cabinItems ?? mockCabinItems);
-  const [monster, setMonster] = useState<MonsterState>(saved?.monster ?? mockMonster);
+  const [cabinItems, setCabinItems] = useState<CabinItem[]>(initCabinItems());
+  const [monster, setMonster] = useState<MonsterState>(initMonster());
   const [stats, setStats] = useState<StatsData>(saved?.stats ?? mockStats);
   const [history, setHistory] = useState<HistoryRecord[]>(saved?.history ?? mockHistory);
   const [selectedMakeUpTask, setSelectedMakeUpTask] = useState<string | null>(saved?.selectedMakeUpTask ?? null);
@@ -146,7 +163,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     let changed = false;
     newItems.forEach((item, idx) => {
       if (item.isStreakReward && item.streakDaysRequired && streak >= item.streakDaysRequired && !item.unlocked) {
-        newItems[idx] = { ...item, unlocked: true };
+        newItems[idx] = { ...item, unlocked: true, placed: true };
         changed = true;
       }
     });
@@ -159,24 +176,57 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const checkStreakRewards = useCallback((newStreak: number) => {
+    const today = getTodayStr();
+
     setCabinItems(items => {
       const newItems = [...items];
+      const newRewardNames: string[] = [];
+
       items.forEach((item, idx) => {
         if (item.isStreakReward && item.streakDaysRequired && newStreak >= item.streakDaysRequired && !item.unlocked) {
-          newItems[idx] = { ...item, unlocked: true };
+          newItems[idx] = { ...item, unlocked: true, placed: true };
+          newRewardNames.push(item.name);
         }
       });
-      const newlyUnlocked = newItems.filter(i => i.unlocked).length;
+
+      const oldTitle = statsRef.current.currentTitle;
+      const newTitle = getCurrentTitle(newStreak);
+      const titleChanged = newTitle !== oldTitle;
+      if (titleChanged) {
+        newRewardNames.push(newTitle);
+      }
+
+      const newlyUnlockedCount = newItems.filter(i => i.unlocked).length;
+
       setStats(s => ({
         ...s,
-        unlockedItems: newlyUnlocked,
-        currentTitle: getCurrentTitle(newStreak),
+        unlockedItems: newlyUnlockedCount,
+        currentTitle: newTitle,
         currentStreak: Math.max(s.currentStreak, newStreak),
         longestStreak: Math.max(s.longestStreak, newStreak)
       }));
+
+      if (newRewardNames.length > 0) {
+        setHistory(hist => {
+          const todayRecord = hist.find(r => r.date === today);
+          if (todayRecord) {
+            return hist.map(r =>
+              r.date === today
+                ? { ...r, rewards: [...(r.rewards || []), ...newRewardNames] }
+                : r
+            );
+          }
+          return [
+            { date: today, tasksCompleted: 3, wordsWritten: 3000, hadMakeUp: false, rewards: newRewardNames },
+            ...hist
+          ];
+        });
+      }
+
+      setNextReward(getNextReward(newStreak));
+
       return newItems;
     });
-    setNextReward(getNextReward(newStreak));
   }, []);
 
   const completeTask = useCallback((taskId: string) => {
@@ -193,8 +243,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const completedCount = newTasks.filter(t => t.completed).length;
       const allCompleted = completedCount === 3;
 
+      const rewardItem = cabinItemsRef.current.find(i => i.id === targetTask.rewardItem);
+      const newRewardFromTask = wasItemLocked && rewardItem ? [rewardItem.name] : [];
+
       setCabinItems(items => items.map(item =>
-        item.id === targetTask.rewardItem ? { ...item, unlocked: true } : item
+        item.id === targetTask.rewardItem ? { ...item, unlocked: true, placed: true } : item
       ));
 
       setStats(s => {
@@ -219,12 +272,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (todayRecord) {
           return hist.map(r =>
             r.date === today
-              ? { ...r, tasksCompleted: completedCount, wordsWritten }
+              ? {
+                  ...r,
+                  tasksCompleted: completedCount,
+                  wordsWritten,
+                  rewards: newRewardFromTask.length > 0
+                    ? [...(r.rewards || []), ...newRewardFromTask]
+                    : r.rewards
+                }
               : r
           );
         }
         return [
-          { date: today, tasksCompleted: completedCount, wordsWritten, hadMakeUp: false },
+          {
+            date: today,
+            tasksCompleted: completedCount,
+            wordsWritten,
+            hadMakeUp: false,
+            rewards: newRewardFromTask.length > 0 ? newRewardFromTask : undefined
+          },
           ...hist
         ];
       });
@@ -235,7 +301,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setWork(w => ({ ...w, totalWords: w.totalWords + 1000 }));
       }
 
-      setMonster(m => ({ ...m, active: false, dismissedForDate: null }));
+      setMonster(m => ({ ...m, active: false, dismissedForDate: null, dismissedLevel: 0 }));
 
       return newTasks;
     });
@@ -279,13 +345,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ];
     });
 
-    setMonster({ active: false, level: 1, message: '', position: 0, dismissedForDate: null });
+    setMonster({ active: false, level: 1, message: '', position: 0, dismissedForDate: null, dismissedLevel: 0 });
     console.log('[AppContext] Make-up task selected:', type);
   }, []);
 
   const dismissMonster = useCallback(() => {
     const today = getTodayStr();
-    setMonster(prev => ({ ...prev, active: false, dismissedForDate: today }));
+    setMonster(prev => ({
+      ...prev,
+      active: false,
+      dismissedForDate: today,
+      dismissedLevel: Math.max(prev.dismissedLevel, prev.level)
+    }));
   }, []);
 
   const checkAndTriggerMonster = useCallback(() => {
@@ -298,11 +369,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const hour = new Date().getHours();
     if (hour < 20) return;
 
+    const targetLevel = hour < 23 ? 1 : 2;
+
     setMonster(currentMonster => {
-      if (currentMonster.dismissedForDate === today) return currentMonster;
+      if (currentMonster.active && currentMonster.level >= targetLevel) {
+        return currentMonster;
+      }
+
+      if (targetLevel <= currentMonster.dismissedLevel) {
+        return currentMonster;
+      }
+
+      if (currentMonster.active && currentMonster.level < targetLevel && targetLevel > currentMonster.dismissedLevel) {
+        const msg = monsterMessagesUrgent[Math.floor(Math.random() * monsterMessagesUrgent.length)];
+        console.log('[AppContext] Monster upgraded to level', targetLevel);
+        return {
+          active: true,
+          level: 2,
+          message: msg,
+          position: 60,
+          dismissedForDate: null,
+          dismissedLevel: currentMonster.dismissedLevel
+        };
+      }
+
       if (currentMonster.active) return currentMonster;
 
-      if (hour < 23) {
+      if (targetLevel === 1) {
         const msg = monsterMessagesGentle[Math.floor(Math.random() * monsterMessagesGentle.length)];
         console.log('[AppContext] Monster gentle reminder');
         return {
@@ -310,7 +403,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           level: 1,
           message: msg,
           position: 30,
-          dismissedForDate: null
+          dismissedForDate: null,
+          dismissedLevel: currentMonster.dismissedLevel
         };
       } else {
         const msg = monsterMessagesUrgent[Math.floor(Math.random() * monsterMessagesUrgent.length)];
@@ -320,7 +414,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           level: 2,
           message: msg,
           position: 60,
-          dismissedForDate: null
+          dismissedForDate: null,
+          dismissedLevel: currentMonster.dismissedLevel
         };
       }
     });
@@ -333,7 +428,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       level: 2,
       message: msg,
       position: 60,
-      dismissedForDate: null
+      dismissedForDate: null,
+      dismissedLevel: 0
     });
     console.log('[AppContext] Monster force-triggered (debug)');
   }, []);
@@ -366,12 +462,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       setDailyTasks(mockDailyTasks.map(t => ({ ...t, completed: false })));
       setSelectedMakeUpTask(null);
-      setMonster({ active: false, level: 1, message: '', position: 0, dismissedForDate: null });
+      setMonster({ active: false, level: 1, message: '', position: 0, dismissedForDate: null, dismissedLevel: 0 });
       setStats(s => ({ ...s, totalDays: s.totalDays + 1 }));
     }
 
     checkAndTriggerMonster();
   }, [checkAndTriggerMonster]);
+
+  const toggleItemPlaced = useCallback((itemId: string) => {
+    setCabinItems(items =>
+      items.map(item =>
+        item.id === itemId && item.isStreakReward && item.unlocked
+          ? { ...item, placed: !item.placed }
+          : item
+      )
+    );
+  }, []);
 
   const clearSave = useCallback(() => {
     try {
@@ -404,6 +510,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       checkAndTriggerMonster,
       checkDailyReset,
       forceTriggerMonster,
+      toggleItemPlaced,
       clearSave
     }}>
       {children}

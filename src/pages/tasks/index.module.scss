@@ -138,6 +138,41 @@
   margin-left: auto;
 }
 
+.modeToggle {
+  margin-left: auto;
+  display: flex;
+  background: $color-bg-hover;
+  border-radius: $radius-round;
+  padding: 4rpx;
+}
+
+.modeBtn {
+  @include button-reset;
+  padding: 8rpx 24rpx;
+  border-radius: $radius-round;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.modeBtnActive {
+  background: $color-primary;
+  box-shadow: 0 2rpx 8rpx rgba($color-primary, 0.3);
+}
+
+.modeBtnText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.modeBtnActive .modeBtnText {
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
 .awardsLink {
   @include button-reset;
   margin-left: auto;
@@ -309,6 +344,35 @@
   color: $color-secondary;
 }
 
+.expandedRewards {
+  margin-top: $spacing-xs;
+  padding-top: $spacing-xs;
+  border-top: 1rpx dashed $color-border;
+}
+
+.expandedRewardsLabel {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: 6rpx;
+}
+
+.expandedRewardsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6rpx;
+}
+
+.expandedRewardTag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  background: linear-gradient(135deg, #FFF0E0 0%, #FFE0C0 100%);
+  color: $color-primary;
+  font-size: 20rpx;
+  border-radius: $radius-xs;
+  font-weight: $font-weight-medium;
+}
+
 .makeUpSection {
   margin: 0 $page-padding;
 }
@@ -401,6 +465,35 @@
 
 .historySection {
   margin: 0 $page-padding;
+}
+
+.statsRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin: 0 $page-padding $spacing-md;
+}
+
+.statsMiniCard {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-sm;
+  text-align: center;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.statsMiniValue {
+  display: block;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-bottom: 4rpx;
+}
+
+.statsMiniLabel {
+  display: block;
+  font-size: 20rpx;
+  color: $color-text-tertiary;
 }
 
 .historyItem {

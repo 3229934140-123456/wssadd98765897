@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, ScrollView } from '@tarojs/components';
+import { View, Text, ScrollView, Button } from '@tarojs/components';
 import { useApp } from '@/store/AppContext';
 import { streakRewards, titleList } from '@/data/mockData';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 
 const AwardsPage: React.FC = () => {
-  const { cabinItems, stats } = useApp();
+  const { cabinItems, stats, toggleItemPlaced } = useApp();
 
   const itemRewards = streakRewards.filter(r => r.type === 'item');
   const titleRewards = streakRewards.filter(r => r.type === 'title');
@@ -42,21 +42,43 @@ const AwardsPage: React.FC = () => {
           const streakReward = streakRewards.find(r => r.id === item.id);
           const daysRequired = item.streakDaysRequired;
           const daysRemaining = daysRequired ? Math.max(0, daysRequired - stats.currentStreak) : 0;
+          const canToggle = item.unlocked && item.isStreakReward;
+
+          const handleToggle = () => {
+            if (canToggle) {
+              toggleItemPlaced(item.id);
+            }
+          };
+
           return (
-            <View
+            <Button
               key={item.id}
               className={classnames(
                 styles.gridItem,
                 item.unlocked && styles.gridItemUnlocked,
-                !item.unlocked && styles.gridItemLocked
+                !item.unlocked && styles.gridItemLocked,
+                canToggle && styles.gridItemClickable,
+                item.placed && item.unlocked && styles.gridItemPlaced
               )}
+              onClick={handleToggle}
             >
               <View className={styles.gridItemIcon}>
                 <Text className={styles.iconEmoji}>{item.icon}</Text>
+                {canToggle && item.placed && (
+                  <View className={styles.placedBadge}>
+                    <Text className={styles.placedBadgeText}>✓</Text>
+                  </View>
+                )}
               </View>
               <Text className={styles.gridItemName}>{item.name}</Text>
               {item.unlocked ? (
-                <Text className={styles.gridItemStatus}>已解锁 ✅</Text>
+                item.isStreakReward ? (
+                  <Text className={styles.gridItemStatus}>
+                    {item.placed ? '已摆放' : '已收起'}
+                  </Text>
+                ) : (
+                  <Text className={styles.gridItemStatus}>已解锁 ✅</Text>
+                )
               ) : daysRequired ? (
                 <Text className={styles.gridItemStatus}>
                   还差{daysRemaining}天 🔒
@@ -64,7 +86,7 @@ const AwardsPage: React.FC = () => {
               ) : (
                 <Text className={styles.gridItemStatus}>完成任务 🔒</Text>
               )}
-            </View>
+            </Button>
           );
         })}
       </View>

@@ -103,40 +103,40 @@ const HomePage: React.FC = () => {
           <Text className={styles.sectionSub}>完成任务点亮道具</Text>
         </View>
         <View className={styles.cabinScene}>
-          <View className={styles.cabinBg}>
-            <View className={styles.wall} />
-            <View className={styles.floor} />
-            <View className={styles.window}>
-              <View className={styles.windowCross1} />
-              <View className={styles.windowCross2} />
-            </View>
-            <View className={styles.bookshelf}>
-              <View className={styles.shelf}>
-                <View className={`${styles.book} ${styles.book1}`} />
-                <View className={`${styles.book} ${styles.book2}`} />
-                <View className={`${styles.book} ${styles.book3}`} />
+            <View className={styles.cabinBg}>
+              <View className={styles.wall} />
+              <View className={styles.floor} />
+              <View className={styles.window}>
+                <View className={styles.windowCross1} />
+                <View className={styles.windowCross2} />
               </View>
-              <View className={styles.shelf}>
-                <View className={`${styles.book} ${styles.book4}`} />
-                <View className={`${styles.book} ${styles.book5}`} />
-                <View className={`${styles.book} ${styles.book6}`} />
+              <View className={styles.bookshelf}>
+                <View className={styles.shelf}>
+                  <View className={`${styles.book} ${styles.book1}`} />
+                  <View className={`${styles.book} ${styles.book2}`} />
+                  <View className={`${styles.book} ${styles.book3}`} />
+                </View>
+                <View className={styles.shelf}>
+                  <View className={`${styles.book} ${styles.book4}`} />
+                  <View className={`${styles.book} ${styles.book5}`} />
+                  <View className={`${styles.book} ${styles.book6}`} />
+                </View>
+                <View className={styles.shelf}>
+                  <View className={`${styles.book} ${styles.book2}`} />
+                  <View className={`${styles.book} ${styles.book1}`} />
+                  <View className={`${styles.book} ${styles.book4}`} />
+                </View>
               </View>
-              <View className={styles.shelf}>
-                <View className={`${styles.book} ${styles.book2}`} />
-                <View className={`${styles.book} ${styles.book1}`} />
-                <View className={`${styles.book} ${styles.book4}`} />
+              <View className={styles.desk}>
+                <View className={styles.deskLeg1} />
+                <View className={styles.deskLeg2} />
               </View>
+              <View className={styles.carpet} />
             </View>
-            <View className={styles.desk}>
-              <View className={styles.deskLeg1} />
-              <View className={styles.deskLeg2} />
-            </View>
-            <View className={styles.carpet} />
+            {cabinItems.filter(item => item.placed).map(item => (
+              <CabinItemComponent key={item.id} item={item} />
+            ))}
           </View>
-          {cabinItems.map(item => (
-            <CabinItemComponent key={item.id} item={item} />
-          ))}
-        </View>
       </View>
 
       <View className={styles.tasksSection}>

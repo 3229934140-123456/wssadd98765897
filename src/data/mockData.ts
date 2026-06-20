@@ -109,14 +109,14 @@ export const mockDailyTasks: DailyTask[] = [
 
 // 小屋道具
 export const mockCabinItems: CabinItem[] = [
-  { id: 'inkBottle', name: '墨水瓶', icon: '🖋️', unlocked: false, position: { x: 15, y: 55 } },
-  { id: 'coffeeCup', name: '咖啡杯', icon: '☕', unlocked: false, position: { x: 35, y: 60 } },
-  { id: 'magicBook', name: '魔法书', icon: '📖', unlocked: false, position: { x: 55, y: 45 } },
-  { id: 'candle', name: '小蜡烛', icon: '🕯️', unlocked: true, position: { x: 75, y: 50 } },
-  { id: 'plant', name: '小盆栽', icon: '🪴', unlocked: false, position: { x: 25, y: 30 }, isStreakReward: true, streakDaysRequired: 3 },
-  { id: 'cat', name: '猫咪', icon: '🐱', unlocked: false, position: { x: 65, y: 70 }, isStreakReward: true, streakDaysRequired: 14 },
-  { id: 'lamp', name: '台灯', icon: '💡', unlocked: true, position: { x: 85, y: 35 } },
-  { id: 'star', name: '许愿星', icon: '⭐', unlocked: false, position: { x: 45, y: 20 }, isStreakReward: true, streakDaysRequired: 7 }
+  { id: 'inkBottle', name: '墨水瓶', icon: '🖋️', unlocked: false, placed: true, position: { x: 15, y: 55 } },
+  { id: 'coffeeCup', name: '咖啡杯', icon: '☕', unlocked: false, placed: true, position: { x: 35, y: 60 } },
+  { id: 'magicBook', name: '魔法书', icon: '📖', unlocked: false, placed: true, position: { x: 55, y: 45 } },
+  { id: 'candle', name: '小蜡烛', icon: '🕯️', unlocked: true, placed: true, position: { x: 75, y: 50 } },
+  { id: 'plant', name: '小盆栽', icon: '🪴', unlocked: false, placed: true, position: { x: 25, y: 30 }, isStreakReward: true, streakDaysRequired: 3 },
+  { id: 'cat', name: '猫咪', icon: '🐱', unlocked: false, placed: true, position: { x: 65, y: 70 }, isStreakReward: true, streakDaysRequired: 14 },
+  { id: 'lamp', name: '台灯', icon: '💡', unlocked: true, placed: true, position: { x: 85, y: 35 } },
+  { id: 'star', name: '许愿星', icon: '⭐', unlocked: false, placed: true, position: { x: 45, y: 20 }, isStreakReward: true, streakDaysRequired: 7 }
 ];
 
 // 补更任务卡
@@ -150,7 +150,8 @@ export const mockMonster: MonsterState = {
   level: 1,
   message: '',
   position: 0,
-  dismissedForDate: null
+  dismissedForDate: null,
+  dismissedLevel: 0
 };
 
 // 统计数据
