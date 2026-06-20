@@ -2,6 +2,7 @@ export default defineAppConfig({
   pages: [
     'pages/home/index',
     'pages/tasks/index',
+    'pages/awards/index',
     'pages/settings/index'
   ],
   window: {

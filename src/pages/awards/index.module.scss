@@ -1,0 +1,298 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+}
+
+.header {
+  margin: $spacing-lg $page-padding $spacing-md;
+  padding: $spacing-xl;
+  border-radius: $radius-xl;
+  background: linear-gradient(135deg, $color-primary 0%, #FFD666 100%);
+  color: $color-text-white;
+  text-align: center;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 105, 0.3);
+}
+
+.headerIcon {
+  font-size: 64rpx;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.headerTitle {
+  display: block;
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-sm;
+}
+
+.headerDesc {
+  display: block;
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-lg $page-padding $spacing-md;
+}
+
+.sectionIcon {
+  font-size: 32rpx;
+}
+
+.sectionTitleText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionSub {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-left: auto;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 $page-padding;
+  gap: $spacing-md;
+}
+
+.gridItem {
+  width: calc(25% - #{$spacing-md} * 3 / 4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md $spacing-sm;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.gridItemUnlocked {
+  background: linear-gradient(180deg, #FFF8F5 0%, #FFEFE8 100%);
+  border: 2rpx solid rgba($color-primary, 0.2);
+}
+
+.gridItemLocked {
+  opacity: 0.5;
+  filter: grayscale(0.6);
+}
+
+.gridItemIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: rgba($color-primary, 0.1);
+  @include flex-center;
+  margin-bottom: $spacing-xs;
+}
+
+.gridItemUnlocked .gridItemIcon {
+  background: linear-gradient(135deg, #FFE8D6 0%, #FFD6B8 100%);
+}
+
+.iconEmoji {
+  font-size: 36rpx;
+}
+
+.gridItemName {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: center;
+  margin-bottom: 4rpx;
+}
+
+.gridItemStatus {
+  display: block;
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  text-align: center;
+}
+
+.gridItemUnlocked .gridItemStatus {
+  color: $color-success;
+}
+
+.titleList {
+  margin: 0 $page-padding;
+}
+
+.titleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-sm;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border: 2rpx solid transparent;
+}
+
+.titleItemUnlocked {
+  border-color: rgba($color-primary, 0.15);
+}
+
+.titleItemCurrent {
+  border-color: $color-primary;
+  background: linear-gradient(135deg, #FFF8F5 0%, #FFEFE8 100%);
+}
+
+.titleItemLocked {
+  opacity: 0.6;
+}
+
+.titleLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.titleIcon {
+  font-size: 36rpx;
+}
+
+.titleInfo {
+  flex: 1;
+}
+
+.titleName {
+  display: block;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.titleNameLocked {
+  color: $color-text-tertiary;
+}
+
+.titleDesc {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.titleRight {
+  flex-shrink: 0;
+}
+
+.currentBadge {
+  padding: 6rpx 16rpx;
+  background: linear-gradient(135deg, $color-primary-light 0%, $color-primary 100%);
+  border-radius: $radius-round;
+}
+
+.currentBadgeText {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.titleRemaining {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.titleCheck {
+  font-size: 28rpx;
+}
+
+.milestoneList {
+  margin: 0 $page-padding;
+}
+
+.milestoneItem {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.milestoneLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80rpx;
+  flex-shrink: 0;
+}
+
+.milestoneBadge {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.milestoneBadgeOn {
+  background: linear-gradient(135deg, $color-primary-light 0%, $color-primary 100%);
+  box-shadow: 0 4rpx 12rpx rgba(255, 140, 105, 0.3);
+}
+
+.milestoneBadgeOff {
+  background: $color-border;
+}
+
+.milestoneDays {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-bold;
+}
+
+.milestoneBadgeOff .milestoneDays {
+  color: $color-text-tertiary;
+}
+
+.milestoneLine {
+  width: 4rpx;
+  flex: 1;
+  background: $color-border;
+  margin-top: $spacing-xs;
+}
+
+.milestoneItem:last-child .milestoneLine {
+  display: none;
+}
+
+.milestoneContent {
+  flex: 1;
+  padding: $spacing-sm 0 $spacing-lg;
+}
+
+.milestoneName {
+  display: block;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.milestoneItemUnlocked .milestoneName {
+  color: $color-primary;
+}
+
+.milestoneDesc {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+}
+
+.milestoneRemaining {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-primary;
+  margin-top: 8rpx;
+  font-weight: $font-weight-medium;
+}

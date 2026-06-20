@@ -17,7 +17,8 @@ import {
   mockMonster,
   mockStats,
   mockHistory,
-  monsterMessages,
+  monsterMessagesGentle,
+  monsterMessagesUrgent,
   targetOptions,
   mockMakeUpTasks,
   getTodayStr,
@@ -80,7 +81,6 @@ const saveState = (state: Omit<GameSave, 'version' | 'lastActiveDate'>) => {
       ...state
     };
     Taro.setStorageSync(STORAGE_KEY, JSON.stringify(save));
-    console.log('[AppContext] State saved');
   } catch (e) {
     console.warn('[AppContext] Failed to save state:', e);
   }
@@ -121,7 +121,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [stats, setStats] = useState<StatsData>(saved?.stats ?? mockStats);
   const [history, setHistory] = useState<HistoryRecord[]>(saved?.history ?? mockHistory);
   const [selectedMakeUpTask, setSelectedMakeUpTask] = useState<string | null>(saved?.selectedMakeUpTask ?? null);
-
   const [nextReward, setNextReward] = useState<NextRewardInfo | null>(() => getNextReward(saved?.stats?.currentStreak ?? mockStats.currentStreak));
 
   const cabinItemsRef = useRef(cabinItems);
@@ -129,17 +128,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const historyRef = useRef(history);
   const statsRef = useRef(stats);
   const workRef = useRef(work);
+  const selectedMakeUpTaskRef = useRef(selectedMakeUpTask);
   cabinItemsRef.current = cabinItems;
   dailyTasksRef.current = dailyTasks;
   historyRef.current = history;
   statsRef.current = stats;
   workRef.current = work;
+  selectedMakeUpTaskRef.current = selectedMakeUpTask;
 
   useEffect(() => {
-    const state = { work, dailyTasks, cabinItems, monster, stats, history, selectedMakeUpTask };
-    saveState(state);
-    console.log('[AppContext] Auto-saved state due to change');
+    saveState({ work, dailyTasks, cabinItems, monster, stats, history, selectedMakeUpTask });
   }, [work, dailyTasks, cabinItems, monster, stats, history, selectedMakeUpTask]);
+
+  useEffect(() => {
+    const streak = saved?.stats?.currentStreak ?? mockStats.currentStreak;
+    const newItems = [...cabinItems];
+    let changed = false;
+    newItems.forEach((item, idx) => {
+      if (item.isStreakReward && item.streakDaysRequired && streak >= item.streakDaysRequired && !item.unlocked) {
+        newItems[idx] = { ...item, unlocked: true };
+        changed = true;
+      }
+    });
+    if (changed) {
+      console.log('[AppContext] Auto-granting streak rewards on init');
+      setCabinItems(newItems);
+      const unlockedCount = newItems.filter(i => i.unlocked).length;
+      setStats(s => ({ ...s, unlockedItems: unlockedCount, currentTitle: getCurrentTitle(streak) }));
+    }
+  }, []);
 
   const checkStreakRewards = useCallback((newStreak: number) => {
     setCabinItems(items => {
@@ -170,12 +187,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!targetTask || targetTask.completed) return prev;
 
       const wasItemLocked = !cabinItemsRef.current.find(i => i.id === targetTask.rewardItem)?.unlocked;
-
       const newTasks = prev.map(task =>
         task.id === taskId ? { ...task, completed: true } : task
       );
-
-      const allCompleted = newTasks.every(t => t.completed);
+      const completedCount = newTasks.filter(t => t.completed).length;
+      const allCompleted = completedCount === 3;
 
       setCabinItems(items => items.map(item =>
         item.id === targetTask.rewardItem ? { ...item, unlocked: true } : item
@@ -197,38 +213,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         return newStats;
       });
 
+      setHistory(hist => {
+        const todayRecord = hist.find(r => r.date === today);
+        const wordsWritten = completedCount * 1000;
+        if (todayRecord) {
+          return hist.map(r =>
+            r.date === today
+              ? { ...r, tasksCompleted: completedCount, wordsWritten }
+              : r
+          );
+        }
+        return [
+          { date: today, tasksCompleted: completedCount, wordsWritten, hadMakeUp: false },
+          ...hist
+        ];
+      });
+
       if (allCompleted) {
-        const wordsPerTask = 1000;
-        setHistory(hist => {
-          const todayRecord = hist.find(r => r.date === today);
-          if (todayRecord) {
-            return hist.map(r =>
-              r.date === today
-                ? { ...r, tasksCompleted: 3, wordsWritten: r.wordsWritten + 3000 }
-                : r
-            );
-          }
-          return [
-            { date: today, tasksCompleted: 3, wordsWritten: 3000, hadMakeUp: false },
-            ...hist
-          ];
-        });
-        setWork(w => ({ ...w, streakDays: w.streakDays + 1, totalWords: w.totalWords + 3000 }));
+        setWork(w => ({ ...w, streakDays: w.streakDays + 1, totalWords: w.totalWords + 1000 }));
       } else {
-        setHistory(hist => {
-          const todayRecord = hist.find(r => r.date === today);
-          if (todayRecord) {
-            return hist.map(r =>
-              r.date === today
-                ? { ...r, tasksCompleted: todayRecord.tasksCompleted + 1, wordsWritten: r.wordsWritten + 1000 }
-                : r
-            );
-          }
-          return [
-            { date: today, tasksCompleted: 1, wordsWritten: 1000, hadMakeUp: false },
-            ...hist
-          ];
-        });
         setWork(w => ({ ...w, totalWords: w.totalWords + 1000 }));
       }
 
@@ -241,12 +244,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateWork = useCallback((updates: Partial<Work>) => {
     setWork(prev => ({ ...prev, ...updates }));
-    console.log('[AppContext] Work updated:', updates);
   }, []);
 
   const updateWorkTarget = useCallback((target: WorkTarget) => {
     setWork(prev => ({ ...prev, target }));
-    console.log('[AppContext] Work target updated:', target);
   }, []);
 
   const selectMakeUpTask = useCallback((type: string) => {
@@ -285,13 +286,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const dismissMonster = useCallback(() => {
     const today = getTodayStr();
     setMonster(prev => ({ ...prev, active: false, dismissedForDate: today }));
-    console.log('[AppContext] Monster dismissed for date:', today);
   }, []);
 
   const checkAndTriggerMonster = useCallback(() => {
     const today = getTodayStr();
     const anyCompleted = dailyTasksRef.current.some(t => t.completed);
-    if (anyCompleted) return;
+    const hasMakeUp = selectedMakeUpTaskRef.current !== null;
+
+    if (anyCompleted || hasMakeUp) return;
 
     const hour = new Date().getHours();
     if (hour < 20) return;
@@ -300,24 +302,36 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (currentMonster.dismissedForDate === today) return currentMonster;
       if (currentMonster.active) return currentMonster;
 
-      const randomMsg = monsterMessages[Math.floor(Math.random() * monsterMessages.length)];
-      console.log('[AppContext] Monster auto-triggered');
-      return {
-        active: true,
-        level: 2,
-        message: randomMsg,
-        position: 60,
-        dismissedForDate: null
-      };
+      if (hour < 23) {
+        const msg = monsterMessagesGentle[Math.floor(Math.random() * monsterMessagesGentle.length)];
+        console.log('[AppContext] Monster gentle reminder');
+        return {
+          active: true,
+          level: 1,
+          message: msg,
+          position: 30,
+          dismissedForDate: null
+        };
+      } else {
+        const msg = monsterMessagesUrgent[Math.floor(Math.random() * monsterMessagesUrgent.length)];
+        console.log('[AppContext] Monster urgent reminder');
+        return {
+          active: true,
+          level: 2,
+          message: msg,
+          position: 60,
+          dismissedForDate: null
+        };
+      }
     });
   }, []);
 
   const forceTriggerMonster = useCallback(() => {
-    const randomMsg = monsterMessages[Math.floor(Math.random() * monsterMessages.length)];
+    const msg = monsterMessagesUrgent[Math.floor(Math.random() * monsterMessagesUrgent.length)];
     setMonster({
       active: true,
       level: 2,
-      message: randomMsg,
+      message: msg,
       position: 60,
       dismissedForDate: null
     });
@@ -336,22 +350,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const yesterdayCompleted = yesterdayTasks.filter(t => t.completed).length;
 
       if (yesterdayCompleted === 0) {
-        console.log('[AppContext] Yesterday no tasks completed yesterday, breaking streak');
+        console.log('[AppContext] No tasks completed yesterday, breaking streak');
         setStats(s => ({ ...s, currentStreak: 0 }));
         setWork(w => ({ ...w, streakDays: 0 }));
         setNextReward(getNextReward(0));
       } else {
         const yesterdayHistory = historyRef.current.find(h => h.date === lastDate);
-        if (!yesterdayHistory || yesterdayHistory.tasksCompleted < 3) {
-          console.log('[AppContext] Yesterday incomplete, updating history');
-          setHistory(hist => {
-            const existing = hist.find(h => h.date === lastDate);
-            if (existing) return hist;
-            return [
-              { date: lastDate, tasksCompleted: yesterdayCompleted, wordsWritten: yesterdayCompleted * 1000, hadMakeUp: false },
-              ...hist
-            ];
-          });
+        if (!yesterdayHistory) {
+          setHistory(hist => [
+            { date: lastDate, tasksCompleted: yesterdayCompleted, wordsWritten: yesterdayCompleted * 1000, hadMakeUp: false },
+            ...hist
+          ]);
         }
       }
 
@@ -359,8 +368,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setSelectedMakeUpTask(null);
       setMonster({ active: false, level: 1, message: '', position: 0, dismissedForDate: null });
       setStats(s => ({ ...s, totalDays: s.totalDays + 1 }));
-    } else {
-      console.log('[AppContext] Same day, no reset needed');
     }
 
     checkAndTriggerMonster();
@@ -369,7 +376,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const clearSave = useCallback(() => {
     try {
       Taro.removeStorageSync(STORAGE_KEY);
-      console.log('[AppContext] Save cleared');
       Taro.showToast({ title: '存档已清除', icon: 'success' });
       setTimeout(() => {
         window.location.reload();

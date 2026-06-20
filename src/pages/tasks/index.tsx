@@ -1,29 +1,115 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useDidShow } from '@tarojs/taro';
 import { useApp } from '@/store/AppContext';
-import { mockMakeUpTasks } from '@/data/mockData';
-import { MakeUpTask, HistoryRecord } from '@/types';
+import { mockMakeUpTasks, streakRewards, titleList } from '@/data/mockData';
+import { MakeUpTask, HistoryRecord, CalendarDay } from '@/types';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 
+const WEEK_DAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
 const TasksPage: React.FC = () => {
-  const { history, selectedMakeUpTask, nextReward, stats, selectMakeUpTask, checkDailyReset } = useApp();
+  const { history, selectedMakeUpTask, nextReward, stats, cabinItems, selectMakeUpTask, checkDailyReset } = useApp();
+
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
+  const [expandedDate, setExpandedDate] = useState<string | null>(null);
 
   useDidShow(() => {
     checkDailyReset();
   });
 
-  const getWeekDay = (dateStr: string): string => {
-    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-    const date = new Date(dateStr);
-    return days[date.getDay()];
+  const calendarDays = useMemo((): CalendarDay[] => {
+    const firstDay = new Date(calendarYear, calendarMonth, 1);
+    const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
+    const startWeekday = firstDay.getDay();
+    const daysInMonth = lastDay.getDate();
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    const historyMap = new Map<string, HistoryRecord>();
+    history.forEach(r => historyMap.set(r.date, r));
+
+    const days: CalendarDay[] = [];
+
+    const prevMonthLastDay = new Date(calendarYear, calendarMonth, 0).getDate();
+    for (let i = startWeekday - 1; i >= 0; i--) {
+      const d = prevMonthLastDay - i;
+      const date = new Date(calendarYear, calendarMonth - 1, d);
+      const dateStr = date.toISOString().split('T')[0];
+      const rec = historyMap.get(dateStr);
+      days.push({
+        date: dateStr,
+        day: d,
+        isCurrentMonth: false,
+        isToday: dateStr === todayStr,
+        tasksCompleted: rec?.tasksCompleted ?? 0,
+        hadMakeUp: rec?.hadMakeUp ?? false,
+        makeUpLabel: rec?.makeUpLabel,
+        rewards: rec?.rewards
+      });
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(calendarYear, calendarMonth, d);
+      const dateStr = date.toISOString().split('T')[0];
+      const rec = historyMap.get(dateStr);
+      days.push({
+        date: dateStr,
+        day: d,
+        isCurrentMonth: true,
+        isToday: dateStr === todayStr,
+        tasksCompleted: rec?.tasksCompleted ?? 0,
+        hadMakeUp: rec?.hadMakeUp ?? false,
+        makeUpLabel: rec?.makeUpLabel,
+        rewards: rec?.rewards
+      });
+    }
+
+    const remaining = 42 - days.length;
+    for (let d = 1; d <= remaining; d++) {
+      const date = new Date(calendarYear, calendarMonth + 1, d);
+      const dateStr = date.toISOString().split('T')[0];
+      const rec = historyMap.get(dateStr);
+      days.push({
+        date: dateStr,
+        day: d,
+        isCurrentMonth: false,
+        isToday: dateStr === todayStr,
+        tasksCompleted: rec?.tasksCompleted ?? 0,
+        hadMakeUp: rec?.hadMakeUp ?? false,
+        makeUpLabel: rec?.makeUpLabel,
+        rewards: rec?.rewards
+      });
+    }
+
+    return days;
+  }, [calendarYear, calendarMonth, history]);
+
+  const monthLabel = `${calendarYear}年${calendarMonth + 1}月`;
+
+  const prevMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarYear(y => y - 1);
+      setCalendarMonth(11);
+    } else {
+      setCalendarMonth(m => m - 1);
+    }
   };
 
-  const getDayMonth = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    return `${date.getMonth() + 1}/${date.getDate()}`;
+  const nextMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarYear(y => y + 1);
+      setCalendarMonth(0);
+    } else {
+      setCalendarMonth(m => m + 1);
+    }
+  };
+
+  const toggleExpand = (date: string) => {
+    setExpandedDate(prev => prev === date ? null : date);
   };
 
   const handleSelectMakeUp = (task: MakeUpTask) => {
@@ -33,26 +119,35 @@ const TasksPage: React.FC = () => {
       icon: 'success',
       duration: 2000
     });
-    console.log('[TasksPage] Make-up task selected:', task.type);
   };
 
-  const getStatusBadge = (record: HistoryRecord) => {
-    if (record.hadMakeUp) {
-      return { text: '补更达标', className: styles.statusMakeup };
-    }
-    if (record.tasksCompleted === 3) {
-      return { text: '完美', className: styles.statusGood };
-    }
-    if (record.tasksCompleted >= 1) {
-      return { text: '进行中', className: styles.statusNormal };
-    }
-    return { text: '待开始', className: styles.statusNormal };
+  const handleGoAwards = () => {
+    Taro.navigateTo({ url: '/pages/awards/index' });
   };
 
   const iconWrapClass = (index: number) => {
     const classes = [styles.iconWrap1, styles.iconWrap2, styles.iconWrap3];
     return classes[index % 3];
   };
+
+  const getStatusBadge = (record: HistoryRecord) => {
+    if (record.hadMakeUp) return { text: '补更达标', className: styles.statusMakeup };
+    if (record.tasksCompleted === 3) return { text: '完美', className: styles.statusGood };
+    if (record.tasksCompleted >= 1) return { text: '进行中', className: styles.statusNormal };
+    return { text: '待开始', className: styles.statusNormal };
+  };
+
+  const getWeekDay = (dateStr: string): string => {
+    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    return days[new Date(dateStr).getDay()];
+  };
+
+  const getDayMonth = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  };
+
+  const expandedRecord = expandedDate ? history.find(r => r.date === expandedDate) : null;
 
   return (
     <ScrollView scrollY className={styles.page}>
@@ -97,6 +192,84 @@ const TasksPage: React.FC = () => {
       )}
 
       <View className={styles.sectionTitle}>
+        <Text className={styles.sectionIcon}>📅</Text>
+        <Text className={styles.sectionTitleText}>创作日历</Text>
+        <Button className={styles.awardsLink} onClick={handleGoAwards}>
+          <Text className={styles.awardsLinkText}>图鉴 →</Text>
+        </Button>
+      </View>
+
+      <View className={styles.calendarCard}>
+        <View className={styles.calendarHeader}>
+          <Button className={styles.calendarNav} onClick={prevMonth}>
+            <Text className={styles.calendarNavText}>‹</Text>
+          </Button>
+          <Text className={styles.calendarMonth}>{monthLabel}</Text>
+          <Button className={styles.calendarNav} onClick={nextMonth}>
+            <Text className={styles.calendarNavText}>›</Text>
+          </Button>
+        </View>
+        <View className={styles.calendarWeekRow}>
+          {WEEK_DAYS.map(d => (
+            <Text key={d} className={styles.calendarWeekDay}>{d}</Text>
+          ))}
+        </View>
+        <View className={styles.calendarGrid}>
+          {calendarDays.map((day, idx) => {
+            const hasRecord = day.tasksCompleted > 0 || day.hadMakeUp;
+            const isExpanded = expandedDate === day.date;
+            return (
+              <View key={idx} className={styles.calendarCellWrap}>
+                <Button
+                  className={classnames(
+                    styles.calendarCell,
+                    !day.isCurrentMonth && styles.cellOtherMonth,
+                    day.isToday && styles.cellToday,
+                    hasRecord && styles.cellHasRecord
+                  )}
+                  onClick={() => hasRecord ? toggleExpand(day.date) : undefined}
+                >
+                  <Text className={classnames(
+                    styles.cellDay,
+                    day.isToday && styles.cellDayToday
+                  )}>{day.day}</Text>
+                  {hasRecord && (
+                    <View className={styles.cellDots}>
+                      {[0, 1, 2].map(i => (
+                        <View
+                          key={i}
+                          className={classnames(
+                            styles.cellDot,
+                            i < day.tasksCompleted && styles.cellDotDone,
+                            day.hadMakeUp && i === 2 && styles.cellDotMakeup
+                          )}
+                        />
+                      ))}
+                    </View>
+                  )}
+                </Button>
+                {isExpanded && expandedRecord && (
+                  <View className={styles.cellExpanded}>
+                    <Text className={styles.expandedDate}>
+                      {getDayMonth(day.date)} {getWeekDay(day.date)}
+                    </Text>
+                    <Text className={styles.expandedInfo}>
+                      完成 {expandedRecord.tasksCompleted}/3 · {expandedRecord.wordsWritten}字
+                    </Text>
+                    {expandedRecord.hadMakeUp && expandedRecord.makeUpLabel && (
+                      <Text className={styles.expandedMakeUp}>
+                        📋 {expandedRecord.makeUpLabel}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
+            );
+          })}
+        </View>
+      </View>
+
+      <View className={styles.sectionTitle}>
         <Text className={styles.sectionIcon}>🎯</Text>
         <Text className={styles.sectionTitleText}>选择补更方式</Text>
       </View>
@@ -137,7 +310,7 @@ const TasksPage: React.FC = () => {
         {history.length === 0 ? (
           <Text className={styles.emptyTip}>还没有记录，开始今天的创作吧！</Text>
         ) : (
-          history.map((record, idx) => {
+          history.slice(0, 7).map((record, idx) => {
             const status = getStatusBadge(record);
             return (
               <View key={idx} className={styles.historyItem}>
@@ -155,7 +328,7 @@ const TasksPage: React.FC = () => {
                     ))}
                   </View>
                   <Text className={styles.historyWords}>
-                    完成 {record.tasksCompleted}/3 任务 · {record.wordsWritten} 字
+                    完成 {record.tasksCompleted}/3 · {record.wordsWritten}字
                     {record.makeUpLabel && ` · ${record.makeUpLabel}`}
                   </Text>
                 </View>

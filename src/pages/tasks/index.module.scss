@@ -138,6 +138,177 @@
   margin-left: auto;
 }
 
+.awardsLink {
+  @include button-reset;
+  margin-left: auto;
+  padding: 4rpx 16rpx;
+  background: rgba($color-primary, 0.1);
+  border-radius: $radius-round;
+}
+
+.awardsLinkText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.calendarCard {
+  margin: 0 $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.calendarNav {
+  @include button-reset;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: $color-bg-hover;
+
+  &:active {
+    background: rgba($color-primary, 0.15);
+  }
+}
+
+.calendarNavText {
+  font-size: 36rpx;
+  color: $color-text-secondary;
+  font-weight: $font-weight-bold;
+}
+
+.calendarMonth {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.calendarWeekRow {
+  display: flex;
+  margin-bottom: $spacing-sm;
+}
+
+.calendarWeekDay {
+  flex: 1;
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.calendarGrid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.calendarCellWrap {
+  width: 14.28%;
+  position: relative;
+}
+
+.calendarCell {
+  @include button-reset;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  gap: 4rpx;
+  transition: background 0.2s;
+
+  &:active {
+    background: rgba($color-primary, 0.1);
+  }
+}
+
+.cellOtherMonth {
+  opacity: 0.35;
+}
+
+.cellToday {
+  background: rgba($color-primary, 0.08);
+}
+
+.cellHasRecord {
+  background: rgba($color-primary, 0.04);
+}
+
+.cellDay {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.cellDayToday {
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+}
+
+.cellDots {
+  display: flex;
+  gap: 4rpx;
+}
+
+.cellDot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: $color-border;
+}
+
+.cellDotDone {
+  background: $color-success;
+}
+
+.cellDotMakeup {
+  background: $color-secondary;
+}
+
+.cellExpanded {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  min-width: 220rpx;
+  padding: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.12);
+  border: 2rpx solid $color-border;
+}
+
+.expandedDate {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.expandedInfo {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.expandedMakeUp {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-secondary;
+}
+
 .makeUpSection {
   margin: 0 $page-padding;
 }

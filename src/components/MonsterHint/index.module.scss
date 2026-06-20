@@ -1,13 +1,21 @@
 @use '@/styles/variables.scss' as *;
 
 .monsterWrap {
-  background: linear-gradient(135deg, #FFF9E6 0%, #FFF0D6 100%);
   border-radius: $radius-lg;
   padding: $spacing-lg;
   margin-bottom: $spacing-md;
-  border: 2rpx solid rgba($color-warning, 0.3);
   position: relative;
   overflow: hidden;
+}
+
+.gentle {
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFF5D6 100%);
+  border: 2rpx solid rgba($color-warning, 0.2);
+}
+
+.urgent {
+  background: linear-gradient(135deg, #FFF0D6 0%, #FFE0C0 100%);
+  border: 2rpx solid rgba($color-warning, 0.4);
 }
 
 .monsterBox {
@@ -20,10 +28,21 @@
   width: 88rpx;
   height: 88rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #FFD666 0%, $color-warning 100%);
   @include flex-center;
   animation: bounce 1s ease-in-out infinite;
   flex-shrink: 0;
+}
+
+.avatarGentle {
+  background: linear-gradient(135deg, #FFE8A0 0%, #FFD666 100%);
+  width: 72rpx;
+  height: 72rpx;
+}
+
+.avatarUrgent {
+  background: linear-gradient(135deg, #FFD666 0%, $color-warning 100%);
+  width: 88rpx;
+  height: 88rpx;
 }
 
 @keyframes bounce {
@@ -36,6 +55,10 @@
 }
 
 .monsterFace {
+  font-size: 40rpx;
+}
+
+.avatarUrgent .monsterFace {
   font-size: 48rpx;
 }
 

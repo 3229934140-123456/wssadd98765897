@@ -86,6 +86,19 @@ export interface HistoryRecord {
   hadMakeUp: boolean;
   makeUpType?: string;
   makeUpLabel?: string;
+  rewards?: string[];
+}
+
+// 日历日期数据
+export interface CalendarDay {
+  date: string;
+  day: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  tasksCompleted: number;
+  hadMakeUp: boolean;
+  makeUpLabel?: string;
+  rewards?: string[];
 }
 
 // 持久化存档

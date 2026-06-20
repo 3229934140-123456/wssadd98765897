@@ -174,13 +174,21 @@ export const mockHistory: HistoryRecord[] = [
   { date: '2026-06-14', tasksCompleted: 2, wordsWritten: 2500, hadMakeUp: false }
 ];
 
-// 怪物语录
-export const monsterMessages = [
-  '嘿～书架在呼唤你，读者大大们正等更呢！',
+// 怪物语录 - 轻度提醒 (20:00-22:59)
+export const monsterMessagesGentle = [
+  '嘿～今天还没动笔呢，趁晚上灵感来了写两句吧？',
+  '夜幕降临，码字的好时光到啦～',
+  '小屋里的灯为你亮着，来写几段吧！',
+  '读者的期待还在哦，今晚稍微写一点？'
+];
+
+// 怪物语录 - 临近深夜 (23:00+)
+export const monsterMessagesUrgent = [
   '怪物我呀，闻到了断更的味道...你不想让读者失望吧？',
   '再不来码字，榜单热度就要溜走啦！',
   '咕噜咕噜～你的小读者正在刷新页面哦',
-  '只差一步就断更啦，快动起来吧！'
+  '只差一步就断更啦，快动起来吧！',
+  '深夜了怪物在靠近书架...抓紧码字赶走它！'
 ];
 
 // 获取今日日期字符串
